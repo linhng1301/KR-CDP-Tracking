@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KR Tracking</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --ink: #1f2733; --dim: #6b7785; --faint: #9aa5b1;
+    --line: #e7ebef; --soft: #f4f6f8;
+    --plan: #2f6fed; --act: #16a374; --behind: #e05656; --doing: #e0922f;
+    --ba: #2f6fed; --dev: #8b5cf6; --uat: #16a374;
+  }
+  body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--ink); background: var(--bg); padding: 22px 18px 36px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  .head { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 16px; flex-wrap: wrap; }
+  .head-l { flex: 1; min-width: 220px; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--act); font-weight: 700; }
+  .title { font-size: 17px; font-weight: 700; line-height: 1.4; margin-top: 5px; }
+  .sub { font-size: 12.5px; color: var(--dim); margin-top: 6px; }
+  .sub b { color: var(--doing); font-weight: 700; }
+
+  .compare { display: flex; gap: 18px; flex-shrink: 0; }
+  .cstat { text-align: right; }
+  .cnum { font-size: 30px; font-weight: 700; line-height: 1; }
+  .cnum.plan { color: var(--plan); }
+  .cnum.act { color: var(--act); }
+  .clab { font-size: 10px; letter-spacing: .4px; text-transform: uppercase; color: var(--faint); font-weight: 600; margin-top: 4px; }
+
+  .cmp { margin-bottom: 8px; }
+  .cmpbar { position: relative; height: 12px; border-radius: 7px; background: var(--soft); }
+  .cmpbar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--act); border-radius: 7px; }
+  .cmpbar .mk { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--plan); }
+  .cmpbar .mk::after { content: '▾'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); color: var(--plan); font-size: 11px; }
+  .delta { display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px; margin-top: 14px; }
+  .d-ahead { background: rgba(22,163,116,.12); color: var(--act); }
+  .d-behind { background: rgba(224,86,86,.12); color: var(--behind); }
+  .d-on { background: rgba(47,111,237,.12); color: var(--plan); }
+  .cmpleg { font-size: 11px; color: var(--faint); margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .cmpleg span { display: flex; gap: 5px; align-items: center; }
+  .cmpleg i { width: 11px; height: 4px; border-radius: 2px; }
+
+  .lbl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); font-weight: 700; margin: 24px 2px 9px; }
+  .lbl em { color: var(--faint); font-style: normal; font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+  .weeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .wk { border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; }
+  .wk.cur { border-color: var(--plan); background: rgba(47,111,237,.04); }
+  .wk-n { font-size: 12px; font-weight: 700; }
+  .wk-n span { color: var(--faint); font-weight: 500; font-size: 11px; }
+  .wk-cur { color: var(--plan); font-size: 9px; font-weight: 700; }
+  .wk-t { font-size: 22px; font-weight: 700; margin-top: 6px; color: var(--plan); }
+  .wk-t span { font-size: 11px; color: var(--faint); font-weight: 600; }
+  .wk-bar { height: 4px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 7px; }
+  .wk-bar i { display: block; height: 100%; background: var(--plan); border-radius: 3px; }
+
+  .feat { border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .feat-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--soft); }
+  .feat-n { font-size: 14.5px; font-weight: 700; flex: 1; min-width: 0; }
+  .badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; }
+  .b-done { background: rgba(22,163,116,.12); color: var(--act); }
+  .b-doing { background: rgba(224,146,47,.14); color: var(--doing); }
+  .b-todo { background: #fff; color: var(--dim); border: 1px solid var(--line); }
+  .feat-pct { font-size: 12px; font-weight: 700; color: var(--dim); flex-shrink: 0; }
+
+  .task { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .t-type { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .tt-BA { background: rgba(47,111,237,.12); color: var(--ba); }
+  .tt-DEV { background: rgba(139,92,246,.13); color: var(--dev); }
+  .tt-UAT { background: rgba(22,163,116,.12); color: var(--uat); }
+  .t-name { font-size: 13px; font-weight: 500; flex: 1; min-width: 80px; }
+  .t-name.done { text-decoration: line-through; color: var(--faint); }
+  .t-wk { font-size: 11px; font-weight: 600; color: var(--dim); background: var(--soft); border-radius: 6px; padding: 3px 7px; flex-shrink: 0; }
+  .pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; border: 1px solid transparent; }
+  .st-todo { color: var(--dim); background: #fff; border-color: var(--line); }
+  .st-doing { color: var(--doing); background: rgba(224,146,47,.10); border-color: rgba(224,146,47,.3); }
+  .st-done { color: var(--act); background: rgba(22,163,116,.10); border-color: rgba(22,163,116,.3); }
+  .t-pct { font-size: 11.5px; font-weight: 700; min-width: 48px; text-align: right; flex-shrink: 0; color: var(--faint); }
+  .t-pct.doing { color: var(--doing); }
+  .t-pct.done { color: var(--act); }
+
+  .split { padding: 0 14px 8px 14px; margin-top: -4px; font-size: 11px; color: var(--faint); }
+  .split b { color: var(--dim); font-weight: 600; }
+  .note-static { padding: 0 14px 11px 14px; font-size: 12px; color: var(--dev); }
+  .note-static .nt { background: rgba(139,92,246,.06); border: 1px solid rgba(139,92,246,.2); border-radius: 7px; padding: 7px 10px; display: block; }
+  .note-static.muted .nt { color: var(--faint); border-color: var(--line); background: var(--soft); }
+
+  .foot { font-size: 11px; color: var(--faint); margin-top: 16px; line-height: 1.7; }
+
+  @media (max-width: 640px) {
+    .weeks { grid-template-columns: repeat(2, 1fr); }
+    .compare { width: 100%; justify-content: flex-start; }
+    .cstat { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+<script>
+  // Mốc CẦN ĐẠT cố định (setup tay) + khung tuần
+  const WEEKS = [
+    { id: 1, name: 'Tuần 1', range: '02–08/06', end: '2026-06-08', target: 25 },
+    { id: 2, name: 'Tuần 2', range: '09–15/06', end: '2026-06-15', target: 58 },
+    { id: 3, name: 'Tuần 3', range: '16–22/06', end: '2026-06-22', target: 75 },
+    { id: 4, name: 'Tuần 4', range: '23–30/06', end: '2026-06-30', target: 100 },
+  ];
+  const DEADLINE = new Date(2026, 5, 30);
+
+  const TL = { BA: 'Tài liệu', DEV: 'Dev', UAT: 'Nghiệm thu', TC: 'Test case' };
+  const ct = function(t){ return t === 'TC' ? 'BA' : t; };
+  const STATUS = {
+    todo:  { label: 'Chưa làm',        f: 0,   cls: 'st-todo' },
+    doing: { label: 'Đang triển khai', f: 0.5, cls: 'st-doing' },
+    done:  { label: 'Đã xong',         f: 1,   cls: 'st-done' },
+  };
+
+  // weeks = mảng tuần thực hiện (1 hoặc 2 tuần) · status = thực tế
+  const DATA = [
+    { name: 'Quản lý Template', tasks: [
+      { type:'BA',  name:'Xây tài liệu',    weeks:[1],   status:'done' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'doing', note:'Timeline 12/6, PIC: Quỳnh – Anh Quyền' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'todo' } ] },
+    { name: 'Dashboard', tasks: [
+      { type:'BA',  name:'Xây tài liệu',    weeks:[1,2], status:'doing' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[2],   status:'todo' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+    { name: 'CJO', tasks: [
+      { type:'TC',  name:'Dựng test case',  weeks:[1,2], status:'doing' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[2,3], status:'doing' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+    { name: 'Activation: Admicro Ads (DMP)', tasks: [
+      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'todo' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'todo' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+  ];
+
+  const tw = function(f){ return (100 / DATA.length) / f.tasks.length; };
+  const fp = function(n){ return (Math.round(n*10)/10).toString().replace('.', ','); };
+  const planTarget = function(W){ return WEEKS[W-1].target; };
+  const actualTotal = function(){ let s=0; DATA.forEach(f=>f.tasks.forEach(t=>{ s += tw(f)*STATUS[t.status].f; })); return Math.round(s); };
+  const featActual = function(f){ let s=0; f.tasks.forEach(t=>{ s += STATUS[t.status].f; }); return Math.round(s/f.tasks.length*100); };
+  const featBadge = function(f){
+    const all=f.tasks.every(t=>t.status==='done'), any=f.tasks.some(t=>t.status!=='todo');
+    if(all) return {c:'b-done', t:'Hoàn thành'};
+    if(any) return {c:'b-doing', t:'Đang làm'};
+    return {c:'b-todo', t:'Chưa bắt đầu'};
+  };
+  const curWeek = function(){ const now=new Date(); for(const w of WEEKS){ if(now <= new Date(w.end+'T23:59:59')) return w.id; } return 4; };
+  const days = function(){ return Math.max(0, Math.ceil((DEADLINE-new Date())/864e5)); };
+
+  function render(){
+    const cur = curWeek();
+    const tgt = planTarget(cur);
+    const act = actualTotal();
+    const diff = act - tgt;
+    let dCls = 'd-on', dTxt = 'Đúng tiến độ';
+    if (diff > 0) { dCls = 'd-ahead'; dTxt = 'Vượt tiến độ +' + diff + '%'; }
+    else if (diff < 0) { dCls = 'd-behind'; dTxt = 'Chậm tiến độ ' + diff + '%'; }
+
+    document.getElementById('root').innerHTML =
+      '<div class="head">' +
+        '<div class="head-l">' +
+          '<div class="eyebrow">Key Result · 06/2026</div>' +
+          '<div class="title">Triển khai &amp; nghiệm thu 4/4 tính năng mới trước 30/06/2026</div>' +
+          '<div class="sub">Còn lại <b>'+days()+' ngày</b> · đã nghiệm thu '+DATA.filter(f=>f.tasks.every(t=>t.status==='done')).length+'/4 tính năng</div>' +
+        '</div>' +
+        '<div class="compare">' +
+          '<div class="cstat"><div class="cnum plan">'+tgt+'%</div><div class="clab">Cần đạt · đến '+WEEKS[cur-1].name+'</div></div>' +
+          '<div class="cstat"><div class="cnum act">'+act+'%</div><div class="clab">Thực tế</div></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="cmp">' +
+        '<div class="cmpbar"><i class="fill" style="width:'+act+'%"></i><span class="mk" style="left:'+tgt+'%"></span></div>' +
+        '<span class="delta '+dCls+'">'+dTxt+'</span>' +
+        '<div class="cmpleg">' +
+          '<span><i style="background:var(--act)"></i>Thực tế đã làm</span>' +
+          '<span><i style="background:var(--plan)"></i>▾ Mốc cần đạt đến hiện tại</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="lbl">Mốc cần đạt theo tuần <em>— kế hoạch, cố định</em></div>' +
+      '<div class="weeks">' + WEEKS.map(function(w){
+        return '<div class="wk '+(w.id===cur?'cur':'')+'">' +
+          '<div class="wk-n">'+w.name+' <span>'+w.range+'</span>'+(w.id===cur?' <span class="wk-cur">• NAY</span>':'')+'</div>' +
+          '<div class="wk-t">'+w.target+'<span>%</span></div>' +
+          '<div class="wk-bar"><i style="width:'+w.target+'%"></i></div>' +
+        '</div>'; }).join('') + '</div>' +
+
+      '<div class="lbl">Thực tế đã làm <em>— theo trạng thái từng việc</em></div>' +
+      DATA.map(renderFeat).join('') +
+
+      '<div class="foot">' +
+        '• Mỗi tính năng chiếm 25% KR · mỗi việc chiếm '+fp(tw(DATA[0]))+'% · <b style="color:var(--doing)">Đang triển khai = tính 50%</b> phần KR của việc đó.<br>' +
+        '• Việc kéo dài 2 tuần thì % được chia đều cho 2 tuần.' +
+      '</div>';
+  }
+
+  function renderFeat(f, fi){
+    const b = featBadge(f);
+    return '<div class="feat">' +
+      '<div class="feat-h">' +
+        '<div class="feat-n">'+(fi+1)+'. '+f.name+'</div>' +
+        '<span class="feat-pct">'+featActual(f)+'%</span>' +
+        '<span class="badge '+b.c+'">'+b.t+'</span>' +
+      '</div>' +
+      f.tasks.map(function(t){
+        const st = STATUS[t.status];
+        const contrib = tw(f)*st.f;
+        const pctCls = t.status==='done' ? 'done' : (t.status==='doing' ? 'doing' : '');
+        const pctTxt = t.status==='todo' ? '0%' : '+'+fp(contrib)+'%';
+        const wkLabel = t.weeks.map(w=>'T'+w).join(', ');
+        const two = t.weeks.length > 1;
+        return '<div class="task">' +
+            '<span class="t-type tt-'+ct(t.type)+'">'+TL[t.type]+'</span>' +
+            '<span class="t-name '+(t.status==='done'?'done':'')+'">'+t.name+'</span>' +
+            '<span class="t-wk">'+wkLabel+'</span>' +
+            '<span class="pill '+st.cls+'">'+st.label+'</span>' +
+            '<span class="t-pct '+pctCls+'">'+pctTxt+'</span>' +
+          '</div>' +
+          (two ? '<div class="split">↳ Chia đều cho 2 tuần: <b>~'+fp(tw(f)/2)+'%/tuần</b> ('+wkLabel+')</div>' : '') +
+          (t.type==='DEV'
+            ? (t.note
+              ? '<div class="note-static"><span class="nt">💬 Trao đổi với dev: '+t.note+'</span></div>'
+              : '<div class="note-static muted"><span class="nt">💬 Trao đổi với dev: chưa cập nhật</span></div>')
+            : '');
+      }).join('') +
+    '</div>';
+  }
+
+  render();
+</script>
+</body>
+</html>
