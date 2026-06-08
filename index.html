@@ -115,6 +115,7 @@
     todo:  { label: 'Chưa làm',        f: 0,   cls: 'st-todo' },
     doing: { label: 'Đang triển khai', f: 0.5, cls: 'st-doing' },
     done:  { label: 'Đã xong',         f: 1,   cls: 'st-done' },
+    pending: {label: 'Tạm hoãn',       f:1.5,  cls: 'st-pending'}
   };
 
   // weeks = mảng tuần thực hiện (1 hoặc 2 tuần) · status = thực tế
@@ -128,8 +129,8 @@
       { type:'DEV', name:'Dev triển khai',  weeks:[2],   status:'todo' },
       { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
     { name: 'CJO', tasks: [
-      { type:'TC',  name:'Dựng test case & tiến hành test (dự kiến hoàn thành: 10/6)',  weeks:[1,2], status:'doing' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[2,3], status:'doing' },
+      { type:'TC',  name:'Dựng test case & tiến hành test (dự kiến timeline: 10-12/6)',  weeks:[1,2], status:'pending' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[2,3], status:'doing', note:'Quỳnh bổ sung data để check customer journey (9/6 done)' },
       { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
     { name: 'Activation: Admicro Ads (DMP)', tasks: [
       { type:'BA',  name:'Xây tài liệu (dự kiến hoàn thành: 12/6)',    weeks:[2],   status:'todo' },
