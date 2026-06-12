@@ -87,7 +87,11 @@
   .note-static { padding: 0 14px 11px 14px; font-size: 12px; color: var(--dev); }
   .note-static .nt { background: rgba(139,92,246,.06); border: 1px solid rgba(139,92,246,.2); border-radius: 7px; padding: 7px 10px; display: block; }
   .note-static.muted .nt { color: var(--faint); border-color: var(--line); background: var(--soft); }
-
+  .note-static.gen .nt {color: var(--dim); background: var(--soft); border-color: var(--line); }
+  .date {padding: 2px 14px 9px 14px; font-size: 11px; color: var(--faint); display: flex; gap: 16px; flex-wrap: warp; }
+  .dates b { font-weight: 700; }
+  .dates .est b { color: var(--plan); }
+  .dates .act b { color: var(--act); }
   .foot { font-size: 11px; color: var(--faint); margin-top: 16px; line-height: 1.7; }
 
   @media (max-width: 640px) {
@@ -118,31 +122,32 @@
     pending: {label: 'Tạm hoãn',       f:0.5,  cls: 'st-pending'}
   };
 
-  // weeks = mảng tuần thực hiện (1 hoặc 2 tuần) · status = thực tế
+  // weeks = mảng tuần thực hiện (1 hoặc 2 tuần) · status = thực tế · w = trọng số % (nếu khác mặc định) · est/actual = timeline
   const DATA = [
     { name: 'Quản lý Template', tasks: [
-      { type:'BA',  name:'Xây tài liệu',    weeks:[1],   status:'done' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'doing', note:'Timeline 12/6, PIC: Quỳnh – Anh Quyền' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'todo' } ] },
+      { type:'BA',  name:'Xây tài liệu',    weeks:[1],   status:'done', est:'', actual:'' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'doing', est:'', actual:'', note:'BE (Lâm) bàn giao tài liệu ngày 10/6; FE đang triển khai (est 12/6)' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'todo', est:'17-18/6', actual:'' } ] },
     { name: 'Dashboard', tasks: [
-      { type:'BA',  name:'Xây tài liệu (dự kiến hoàn thành: 8/6)',    weeks:[1,2], status:'doing' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[2],   status:'todo' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+      { type:'BA',  name:'Xây tài liệu',    weeks:[1,2], status:'done', est:'8/6', actual:'12/6' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[2],   status:'todo', est:'',    actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', est:'',    actual:'' } ] },
     { name: 'CJO', tasks: [
-      { type:'TC',  name:'Dựng test case & tiến hành test (dự kiến timeline: 10-12/6)',  weeks:[1,2], status:'pending' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[2,3], status:'doing', note:'Quỳnh bổ sung data để check customer journey (9/6 done)' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+      { type:'TC',  name:'Dựng test case & tiến hành test',  weeks:[2,3], status:'doing', est:'15-17/6', actual:'', note:'Đã có file testcase, tiếp tục quy trình test từ 12/6' },
+     { type:'DEV', name:'Dev triển khai (1)', weeks:[2],   status:'done', w:25/6, est:'', actual:'', note:'Xử lý xong issue test round 1 – Hoàn thành' },
+      { type:'DEV', name:'Dev triển khai (2)', weeks:[3,4], status:'todo', w:25/6, est:'', actual:'', note:'Chưa cập nhật timeline' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', w:25/3, est:'', actual:'' } ] },
     { name: 'Activation: Admicro Ads (DMP)', tasks: [
-      { type:'BA',  name:'Xây tài liệu (dự kiến hoàn thành: 12/6)',    weeks:[2],   status:'todo' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'todo' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo' } ] },
+      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done', est:'12/6', actual:'', note:'12/6 gửi tài liệu review' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'todo', est:'', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', est:'', actual:'' } ] },
   ];
 
-  const tw = function(f){ return (100 / DATA.length) / f.tasks.length; };
+  const tw = function(f, t){ return (t && t.w != null) ? t.w : (100 / DATA.length) / f.tasks.length; };
   const fp = function(n){ return (Math.round(n*10)/10).toString().replace('.', ','); };
   const planTarget = function(W){ return WEEKS[W-1].target; };
-  const actualTotal = function(){ let s=0; DATA.forEach(f=>f.tasks.forEach(t=>{ s += tw(f)*STATUS[t.status].f; })); return Math.round(s); };
-  const featActual = function(f){ let s=0; f.tasks.forEach(t=>{ s += STATUS[t.status].f; }); return Math.round(s/f.tasks.length*100); };
+  const actualTotal = function(){ let s=0; DATA.forEach(f=>f.tasks.forEach(t=>{ s += tw(f,t)*STATUS[t.status].f; })); return Math.round(s); };
+  const featActual = function(f){ let num=0, den=0; f.tasks.forEach(t=>{ const w=tw(f,t); num+=w*STATUS[t.status].f; den+=w; }); return Math.round(num/den*100); };
   const featBadge = function(f){
     const all=f.tasks.every(t=>t.status==='done'), any=f.tasks.some(t=>t.status!=='todo');
     if(all) return {c:'b-done', t:'Hoàn thành'};
@@ -195,8 +200,8 @@
       DATA.map(renderFeat).join('') +
 
       '<div class="foot">' +
-        '• Mỗi tính năng chiếm 25% KR · mỗi việc chiếm '+fp(tw(DATA[0]))+'% · <b style="color:var(--doing)">Đang triển khai = tính 50%</b> phần KR của việc đó.<br>' +
-        '• Việc kéo dài 2 tuần thì % được chia đều cho 2 tuần.' +
+        '• Mỗi tính năng chiếm 25% KR · <b style="color:var(--doing)">Đang triển khai = tính 50%</b> phần KR của việc đó · việc kéo dài 2 tuần thì % chia đều cho 2 tuần.<br>' +
+        '• 📅 Est = timeline dự kiến · ✔ Thực tế = thời gian thực tế đã làm.' +
       '</div>';
   }
 
@@ -210,11 +215,19 @@
       '</div>' +
       f.tasks.map(function(t){
         const st = STATUS[t.status];
-        const contrib = tw(f)*st.f;
+        const contrib = tw(f,t)*st.f;
         const pctCls = t.status==='done' ? 'done' : (t.status==='doing' ? 'doing' : '');
         const pctTxt = t.status==='todo' ? '0%' : '+'+fp(contrib)+'%';
         const wkLabel = t.weeks.map(w=>'T'+w).join(', ');
         const two = t.weeks.length > 1;
+        let noteHTML = '';
+        if (t.type==='DEV') {
+          noteHTML = t.note
+            ? '<div class="note-static"><span class="nt">💬 Trao đổi với dev: '+t.note+'</span></div>'
+            : '<div class="note-static muted"><span class="nt">💬 Trao đổi với dev: chưa cập nhật</span></div>';
+        } else if (t.note) {
+          noteHTML = '<div class="note-static gen"><span class="nt">📝 Ghi chú: '+t.note+'</span></div>';
+        }
         return '<div class="task">' +
             '<span class="t-type tt-'+ct(t.type)+'">'+TL[t.type]+'</span>' +
             '<span class="t-name '+(t.status==='done'?'done':'')+'">'+t.name+'</span>' +
@@ -222,12 +235,8 @@
             '<span class="pill '+st.cls+'">'+st.label+'</span>' +
             '<span class="t-pct '+pctCls+'">'+pctTxt+'</span>' +
           '</div>' +
-          (two ? '<div class="split">↳ Chia đều cho 2 tuần: <b>~'+fp(tw(f)/2)+'%/tuần</b> ('+wkLabel+')</div>' : '') +
-          (t.type==='DEV'
-            ? (t.note
-              ? '<div class="note-static"><span class="nt">💬 Trao đổi với dev: '+t.note+'</span></div>'
-              : '<div class="note-static muted"><span class="nt">💬 Trao đổi với dev: chưa cập nhật</span></div>')
-            : '');
+         '<div class="dates"><span class="est">📅 Est: <b>'+(t.est||'—')+'</b></span><span class="act">✔ Thực tế: <b>'+(t.actual||'—')+'</b></span></div>' +
+          noteHTML;
       }).join('') +
     '</div>';
   }
