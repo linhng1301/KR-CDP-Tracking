@@ -65,6 +65,7 @@
   .b-doing { background: rgba(224,146,47,.14); color: var(--doing); }
   .b-todo { background: #fff; color: var(--dim); border: 1px solid var(--line); }
   .feat-pct { font-size: 12px; font-weight: 700; color: var(--dim); flex-shrink: 0; }
+  .pic { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; background: rgba(139,92,246,.12); color: var(--dev); }
 
   .task { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
   .t-type { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
@@ -126,21 +127,29 @@
   const DATA = [
     { name: 'Quản lý Template', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[1],   status:'done',  est:'',        actual:'' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'doing', est:'',        actual:'', note:'BE (Lâm) bàn giao tài liệu ngày 10/6; FE đang triển khai (est 12/6)' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'todo',  est:'17–18/6', actual:'' } ] },
+      { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'done',  est:'',        actual:'12/6', note:'BE (Lâm) bàn giao tài liệu ngày 10/6; FE đã triển khai xong (12/6)' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'done',  est:'17–18/6', actual:'18/6', note:'Đã nghiệm thu lần 1, bàn giao issue cho dev xử lý (18/6)' } ] },
     { name: 'Dashboard', tasks: [
-      { type:'BA',  name:'Xây tài liệu',    weeks:[1,2], status:'done', est:'8/6', actual:'12/6' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'todo',  est:'',    actual:'' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',    actual:'' } ] },
+      { type:'BA',  name:'Xây tài liệu',    weeks:[1,2], status:'done',  est:'8/6',     actual:'12/6' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'18–20/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
     { name: 'CJO', tasks: [
-      { type:'TC',  name:'Dựng testcase và tiến hành test', weeks:[1,2], status:'doing', w:25/3, est:'15–17/6', actual:'', note:'Đã có file testcase, pending quy trình test sang tuần 3' },
-      { type:'DEV', name:'Dev triển khai (1)', weeks:[2],   status:'done', w:25/6, est:'', actual:'', note:'Xử lý xong issue test round 1 – Hoàn thành' },
-      { type:'DEV', name:'Dev triển khai (2)', weeks:[3,4], status:'todo', w:25/6, est:'', actual:'', note:'Chưa cập nhật timeline' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', w:25/3, est:'', actual:'' } ] },
+      { type:'TC',  name:'Dựng testcase và tiến hành test', weeks:[1,2], status:'doing', w:(100/6)/3, est:'15–17/6', actual:'', note:'Đã có file testcase, pending quy trình test sang tuần 3' },
+      { type:'DEV', name:'Dev triển khai (1)', weeks:[2],   status:'done', w:(100/6)/6, est:'', actual:'', note:'Xử lý xong issue test round 1 – Hoàn thành' },
+      { type:'DEV', name:'Dev triển khai (2)', weeks:[3,4], status:'todo', w:(100/6)/6, est:'', actual:'', note:'Chưa cập nhật timeline' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', w:(100/6)/3, est:'', actual:'' } ] },
     { name: 'Activation: Admicro Ads (DMP)', tasks: [
-      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done', est:'12/6', actual:'', note:'12/6 gửi tài liệu review' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'todo', est:'', actual:'' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', est:'', actual:'' } ] },
+      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'12/6',    actual:'', note:'12/6 gửi tài liệu review' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'24–26/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
+    { name: 'Campaign report', pic: 'Chi', tasks: [
+      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'',        actual:'' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'20–23/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
+    { name: 'Clean / Đồng bộ dữ liệu', pic: 'Chi', tasks: [
+      { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'',        actual:'' },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'23–25/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
   ];
 
   const tw = function(f, t){ return (t && t.w != null) ? t.w : (100 / DATA.length) / f.tasks.length; };
@@ -170,8 +179,8 @@
       '<div class="head">' +
         '<div class="head-l">' +
           '<div class="eyebrow">Key Result · 06/2026</div>' +
-          '<div class="title">Triển khai &amp; nghiệm thu 4/4 tính năng mới trước 30/06/2026</div>' +
-          '<div class="sub">Còn lại <b>'+days()+' ngày</b> · đã nghiệm thu '+DATA.filter(f=>f.tasks.every(t=>t.status==='done')).length+'/4 tính năng</div>' +
+          '<div class="title">Triển khai &amp; nghiệm thu 6/6 tính năng mới trước 30/06/2026</div>' +
+          '<div class="sub">Còn lại <b>'+days()+' ngày</b> · đã nghiệm thu '+DATA.filter(f=>f.tasks.every(t=>t.status==='done')).length+'/'+DATA.length+' tính năng</div>' +
         '</div>' +
         '<div class="compare">' +
           '<div class="cstat"><div class="cnum plan">'+tgt+'%</div><div class="clab">Cần đạt · đến '+WEEKS[cur-1].name+'</div></div>' +
@@ -200,7 +209,7 @@
       DATA.map(renderFeat).join('') +
 
       '<div class="foot">' +
-        '• Mỗi tính năng chiếm 25% KR · <b style="color:var(--doing)">Đang triển khai = tính 50%</b> phần KR của việc đó · việc kéo dài 2 tuần thì % chia đều cho 2 tuần.<br>' +
+        '• Mỗi tính năng chiếm ~16,7% KR (100%/6) · <b style="color:var(--doing)">Đang triển khai = tính 50%</b> phần KR của việc đó · việc kéo dài 2 tuần thì % chia đều cho 2 tuần.<br>' +
         '• 📅 Est = timeline dự kiến · ✔ Thực tế = thời gian thực tế đã làm.' +
       '</div>';
   }
@@ -210,6 +219,7 @@
     return '<div class="feat">' +
       '<div class="feat-h">' +
         '<div class="feat-n">'+(fi+1)+'. '+f.name+'</div>' +
+        (f.pic ? '<span class="pic">PIC: '+f.pic+'</span>' : '') +
         '<span class="feat-pct">'+featActual(f)+'%</span>' +
         '<span class="badge '+b.c+'">'+b.t+'</span>' +
       '</div>' +
