@@ -121,35 +121,36 @@
     todo:  { label: 'Chưa làm',        f: 0,   cls: 'st-todo' },
     doing: { label: 'Đang triển khai', f: 0.5, cls: 'st-doing' },
     done:  { label: 'Đã xong',         f: 1,   cls: 'st-done' },
+    pending: { label: 'Pending',       f: 0,   cls: 'st-pending' },
   };
 
   // weeks = mảng tuần thực hiện (1 hoặc 2 tuần) · status = thực tế · w = trọng số % (nếu khác mặc định) · est/actual = timeline
   const DATA = [
-    { name: 'Quản lý Template', tasks: [
+    { name: 'Quản lý Template', pic: 'Linh', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[1],   status:'done',  est:'',        actual:'' },
       { type:'DEV', name:'Dev triển khai',  weeks:[1,2], status:'done',  est:'',        actual:'12/6', note:'BE (Lâm) bàn giao tài liệu ngày 10/6; FE đã triển khai xong (12/6)' },
       { type:'UAT', name:'Nghiệm thu',      weeks:[3],   status:'done',  est:'17–18/6', actual:'18/6', note:'Đã nghiệm thu lần 1, bàn giao issue cho dev xử lý (18/6)' } ] },
-    { name: 'Dashboard', tasks: [
+    { name: 'Dashboard', pic: 'Linh', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[1,2], status:'done',  est:'8/6',     actual:'12/6' },
       { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'18–20/6', actual:'' },
       { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
-    { name: 'CJO', tasks: [
-      { type:'TC',  name:'Dựng testcase và tiến hành test', weeks:[1,2], status:'doing', w:(100/6)/3, est:'15–17/6', actual:'', note:'Đã có file testcase, pending quy trình test sang tuần 3' },
+    { name: 'CJO', pic: 'Linh', tasks: [
+      { type:'TC',  name:'Dựng testcase và tiến hành test', weeks:[1,2], status:'done', w:(100/6)/3, est:'15–17/6', actual:'', note:'Hoàn thành các testcase đã dựng' },
       { type:'DEV', name:'Dev triển khai (1)', weeks:[2],   status:'done', w:(100/6)/6, est:'', actual:'', note:'Xử lý xong issue test round 1 – Hoàn thành' },
       { type:'DEV', name:'Dev triển khai (2)', weeks:[3,4], status:'todo', w:(100/6)/6, est:'', actual:'', note:'Chưa cập nhật timeline' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo', w:(100/6)/3, est:'', actual:'' } ] },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'pending', w:(100/6)/3, est:'', actual:'', note: 'Tạm pending sang tháng sau để chờ round test của tester' } ] },
     { name: 'Activation: Admicro Ads (DMP)', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'12/6',    actual:'', note:'12/6 gửi tài liệu review' },
       { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'24–26/6', actual:'' },
       { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
     { name: 'Campaign report', pic: 'Chi', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'',        actual:'' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'20–23/6', actual:'' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'done', est:'20–23/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'doing',  est:'',        actual:'' } ] },
     { name: 'Clean / Đồng bộ dữ liệu', pic: 'Chi', tasks: [
       { type:'BA',  name:'Xây tài liệu',    weeks:[2],   status:'done',  est:'',        actual:'' },
-      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'doing', est:'23–25/6', actual:'' },
-      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'todo',  est:'',        actual:'' } ] },
+      { type:'DEV', name:'Dev triển khai',  weeks:[3],   status:'done', est:'23–25/6', actual:'' },
+      { type:'UAT', name:'Nghiệm thu',      weeks:[4],   status:'doing',  est:'',        actual:'' } ] },
   ];
 
   const tw = function(f, t){ return (t && t.w != null) ? t.w : (100 / DATA.length) / f.tasks.length; };
